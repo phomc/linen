@@ -1,0 +1,6 @@
+dependencies {
+	// Mixinextras
+	api(libs.mixinextras)
+	include(libs.mixinextras)
+	annotationProcessor(libs.mixinextras)
+}

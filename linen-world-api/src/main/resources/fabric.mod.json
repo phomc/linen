@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-world-api",
+  "name": "Linen World API",
+  "version": "${version}",
+  "description": "Provides a simple API for interacting with the world.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "accessWidener": "linen-world-api.accesswidener",
+  "mixins": [
+    "linen-world-api.mixins.json"
+  ]
+}

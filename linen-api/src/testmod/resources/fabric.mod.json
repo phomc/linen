@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-api-test",
+  "name": "Linen API Test Mod",
+  "version": "1.0.0",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "depends": {
+    "linen-api": "*"
+  },
+  "entrypoints": {
+    "main": [
+      "dev.phomc.linen.test.base.LinenBaseTestInit"
+    ]
+  }
+}

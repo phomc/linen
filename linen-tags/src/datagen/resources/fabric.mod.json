@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-tags-datagen",
+  "name": "Linen Tags Datagen",
+  "version": "${version}",
+  "description": "Contains common tags used by multiple mods.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "entrypoints": {
+    "fabric-datagen": [
+      "dev.phomc.linen.impl.tag.datagen.DatagenEntrypoint"
+    ]
+  }
+}

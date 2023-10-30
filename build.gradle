@@ -1,0 +1,376 @@
+import groovy.json.JsonSlurper
+import net.fabricmc.loom.task.RemapJarTask
+import net.fabricmc.loom.task.ValidateMixinNameTask
+
+plugins {
+	id "java-library"
+	id "eclipse"
+	id "idea"
+	id "maven-publish"
+
+	alias(libs.plugins.fabric.loom) apply false
+	alias(libs.plugins.spotless)
+}
+
+def moduleDependencies(project, List<String> depNames) {
+	def deps = depNames.iterator().collect { project.dependencies.project(path: ":$it", configuration: 'namedElements') }
+	def clientOutputs = depNames.iterator().collect { findProject(":$it").sourceSets.client.output }
+
+	project.dependencies {
+		deps.each {
+			api it
+		}
+
+		clientOutputs.each {
+			clientImplementation it
+		}
+	}
+}
+
+allprojects {
+	apply plugin: "maven-publish"
+
+	tasks.withType(GenerateModuleMetadata).configureEach {
+		enabled = false
+	}
+
+	publishing {
+		repositories.mavenLocal()
+	}
+
+	apply plugin: "java-library"
+	apply plugin: "fabric-loom"
+	apply plugin: "com.diffplug.spotless"
+
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release.set(17)
+	}
+
+	java {
+		withSourcesJar()
+	}
+
+	loom {
+		splitEnvironmentSourceSets()
+	}
+
+	sourceSets {
+		testmod {
+			compileClasspath += main.compileClasspath
+			runtimeClasspath += main.runtimeClasspath
+		}
+
+		testmodClient {
+			compileClasspath += main.compileClasspath
+			runtimeClasspath += main.runtimeClasspath
+			compileClasspath += client.compileClasspath
+			runtimeClasspath += client.runtimeClasspath
+
+			compileClasspath += testmod.compileClasspath
+			runtimeClasspath += testmod.runtimeClasspath
+		}
+	}
+
+	loom {
+		runtimeOnlyLog4j = true
+
+		runs {
+			testmodClient {
+				client()
+				ideConfigGenerated project.rootProject == project
+				name = "Testmod Client"
+				source sourceSets.testmodClient
+			}
+
+			testmodServer {
+				server()
+				ideConfigGenerated project.rootProject == project
+				name = "Testmod Server"
+				source sourceSets.testmod
+			}
+		}
+	}
+
+	loom.runs.configureEach {
+		vmArg("-enableassertions")
+	}
+
+	allprojects.each { p ->
+		loom.mods.register(p.name) {
+			sourceSet p.sourceSets.main
+			sourceSet p.sourceSets.client
+		}
+
+		loom.mods.register(p.name + "-testmod") {
+			sourceSet p.sourceSets.testmod
+			sourceSet p.sourceSets.testmodClient
+		}
+	}
+
+	dependencies {
+		minecraft(libs.minecraft)
+		mappings(variantOf(libs.yarn) { classifier("v2") })
+
+		// fabric
+		modImplementation(libs.fabric.api)
+		modImplementation(libs.fabric.loader)
+
+		testmodImplementation sourceSets.main.output
+		testmodClientImplementation sourceSets.main.output
+		testmodClientImplementation sourceSets.client.output
+		testmodClientImplementation sourceSets.testmod.output
+	}
+
+	tasks.withType(ProcessResources).configureEach {
+		inputs.property "version", project.version
+
+		filesMatching("fabric.mod.json") {
+			expand "version": project.version
+		}
+	}
+
+	spotless {
+		java {
+			licenseHeaderFile(rootProject.file("HEADER"))
+			removeUnusedImports()
+			importOrder('java', 'javax', '', 'net.minecraft', 'net.fabricmc', 'dev.phomc')
+			indentWithTabs()
+			trimTrailingWhitespace()
+		}
+	}
+
+	tasks.withType(AbstractArchiveTask).configureEach {
+		preserveFileTimestamps = false
+		reproducibleFileOrder = true
+	}
+
+	tasks.register('testmodJar', Jar) {
+		from sourceSets.testmod.output
+		from sourceSets.testmodClient.output
+		destinationDirectory = new File(project.getBuildDir(), "devlibs")
+		archiveClassifier = "testmod"
+	}
+
+	[jar, sourcesJar].each {
+		it.from(rootProject.file("LICENSE")) {
+			rename { "${it}-${project.base.archivesName.get()}" }
+		}
+	}
+
+	if (file("src/client").exists() && !file("src/main").exists()) {
+		remapJar {
+			additionalClientOnlyEntries.add("LICENSE-${project.base.archivesName.get()}")
+		}
+
+		remapSourcesJar {
+			additionalClientOnlyEntries.add("LICENSE-${project.base.archivesName.get()}")
+		}
+	}
+
+	tasks.register('remapTestmodJar', RemapJarTask) {
+		dependsOn testmodJar
+		input = testmodJar.archiveFile
+		archiveClassifier = "testmod"
+		addNestedDependencies = false
+		includesClientOnlyClasses = true
+		clientOnlySourceSetName = sourceSets.testmodClient.name
+	}
+	build.dependsOn remapTestmodJar
+
+	tasks.register('validateMixinNames', ValidateMixinNameTask) {
+		source(sourceSets.main.output)
+		source(sourceSets.client.output)
+	}
+}
+
+remapTestmodJar {
+	def testModJarTasks = []
+
+	subprojects {
+		if (it.name == "common" || !(it.file("src/testmod").exists() || it.file("src/testmodClient").exists())) {
+			return
+		}
+
+		testModJarTasks += it.tasks.remapTestmodJar
+	}
+
+	nestedJars.setFrom(testModJarTasks)
+	addNestedDependencies = true
+	clientOnlySourceSetName = sourceSets.testmodClient.name
+}
+
+javadoc {
+	options {
+		source = "17"
+		encoding = "UTF-8"
+		charSet = "UTF-8"
+		memberLevel = JavadocMemberLevel.PACKAGE
+		links(
+				"https://maven.fabricmc.net/docs/yarn-${libs.versions.yarn.get()}/"
+				)
+		// Disable the crazy super-strict doclint tool in Java 8
+		addStringOption("Xdoclint:none", "-quiet")
+
+		tags(
+				'apiNote:a:API Note:',
+				'implSpec:a:Implementation Requirements:',
+				'implNote:a:Implementation Note:'
+				)
+	}
+
+	allprojects.each {
+		source(it.sourceSets.main.allJava)
+		source(it.sourceSets.client.allJava)
+	}
+
+	classpath = files(sourceSets.main.compileClasspath, sourceSets.client.compileClasspath)
+	include("**/api/**")
+	failOnError true
+}
+
+tasks.register('javadocJar', Jar) {
+	dependsOn javadoc
+	from javadoc.destinationDir
+	//Set as `fatjavadoc` to prevent an ide form trying to use this javadoc, over using the modules javadoc
+	archiveClassifier = "fatjavadoc"
+}
+
+build.dependsOn javadocJar
+
+
+// Format all the gradle files
+spotless {
+	groovyGradle {
+		target 'src/**/*.gradle', '*.gradle', 'gradle/*.gradle'
+		greclipse()
+	}
+}
+
+def addPomMetadataInformation(Project project, MavenPom pom) {
+	def modJsonFile = project.file("src/main/resources/fabric.mod.json")
+
+	if (!modJsonFile.exists()) {
+		modJsonFile = project.file("src/client/resources/fabric.mod.json")
+	}
+
+	def modJson = new JsonSlurper().parse(modJsonFile)
+	pom.name = modJson.name
+	pom.url = "https://github.com/PhoMC/linen/tree/HEAD/${project.rootDir.relativePath(project.projectDir)}"
+	pom.description = modJson.description
+	pom.licenses {
+		license {
+			name = "Apache-2.0"
+			url = "https://github.com/PhoMC/linen/blob/HEAD/LICENSE"
+		}
+	}
+	pom.developers {
+		developer {
+			name = "PhoMC"
+			url = "https://phomc.dev/"
+		}
+	}
+	pom.scm {
+		connection = "scm:git:https://github.com/PhoMC/linen.git"
+		url = "https://github.com/PhoMC/linen"
+		developerConnection = "scm:git:git@github.com:PhoMC/linen.git"
+	}
+	pom.issueManagement {
+		system = "GitHub"
+		url = "https://github.com/PhoMC/linen/issues"
+	}
+}
+
+subprojects {
+	base {
+		archivesName = project.name
+	}
+
+	dependencies {
+		testmodImplementation sourceSets.main.output
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				pom {
+					addPomMetadataInformation(project, pom)
+				}
+
+				artifact(remapJar) {
+					builtBy remapJar
+				}
+
+				artifact(remapSourcesJar) {
+					builtBy remapSourcesJar
+				}
+			}
+		}
+	}
+
+	javadoc.enabled = false
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifact(remapJar) {
+				builtBy remapJar
+			}
+
+			artifact(sourcesJar) {
+				builtBy remapSourcesJar
+			}
+
+			artifact javadocJar
+			artifact remapTestmodJar
+
+			pom {
+				addPomMetadataInformation(rootProject, pom)
+			}
+
+			pom.withXml {
+				def depsNode = asNode().appendNode("dependencies")
+				subprojects.each {
+					def depNode = depsNode.appendNode("dependency")
+					depNode.appendNode("groupId", it.group)
+					depNode.appendNode("artifactId", it.name)
+					depNode.appendNode("version", it.version)
+					depNode.appendNode("scope", "compile")
+				}
+			}
+		}
+	}
+}
+
+subprojects.each {
+	remapJar.dependsOn("${it.path}:remapJar")
+}
+
+dependencies {
+	afterEvaluate {
+		subprojects.each {
+			if (it.name == "linen-common") {
+				return
+			}
+
+			api project(path: "${it.path}", configuration: "namedElements")
+			clientImplementation project("${it.path}:").sourceSets.client.output
+
+			testmodImplementation project("${it.path}:").sourceSets.testmod.output
+			testmodClientImplementation project("${it.path}:").sourceSets.testmodClient.output
+		}
+	}
+}
+
+remapJar {
+	afterEvaluate {
+		subprojects.each {
+			if (it.name == "linen-common") {
+				return
+			}
+
+			nestedJars.from project("${it.path}").tasks.getByName("remapJar")
+		}
+	}
+}
+

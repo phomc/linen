@@ -1,0 +1,26 @@
+[versions]
+minecraft = "1.20.2"
+yarn = "1.20.2+build.1"
+
+fabric-api = "0.91.1+1.20.2"
+fabric-loader = "0.15.0"
+
+mixinextras = "0.2.0"
+
+cca = "5.3.0"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+yarn = { module = "net.fabricmc:yarn", version.ref = "yarn" }
+
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+
+mixinextras = { module = "io.github.llamalad7:mixinextras-fabric", version.ref = "mixinextras" }
+
+cca-base = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-base", version.ref = "cca" }
+cca-api = { module = "dev.onyxstudios.cardinal-components-api:cardinal-components-api", version.ref = "cca" }
+
+[plugins]
+fabric-loom = { id = "fabric-loom", version = "1.4-SNAPSHOT" }
+spotless = { id = "com.diffplug.spotless", version = "6.22.0" }

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-block-api",
+  "name": "Linen Block API",
+  "version": "${version}",
+  "description": "A extension of the Block API, adding more features and utilities",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "mixins": [
+  ]
+}

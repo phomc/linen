@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-common-test",
+  "name": "Linen Common Test",
+  "version": "${version}",
+  "description": "Common test mod for Linen",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "entrypoints": {
+    "main": [
+      "dev.phomc.linen.test.common.LinenCommonTest"
+    ],
+    "client": [
+      "dev.phomc.linen.test.client.common.LinenCommonTestClient"
+    ]
+  }
+}

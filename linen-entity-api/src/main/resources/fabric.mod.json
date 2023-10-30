@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-entity-api",
+  "name": "Linen Entity API",
+  "version": "${version}",
+  "description": "A mod that provides extra API for entity-related features.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "mixins": [
+    "linen-entity-api.mixins.json"
+  ],
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_1297": [
+        "dev/phomc/linen/api/entity/LinenEntity"
+      ],
+      "net/minecraft/class_1309": [
+        "dev/phomc/linen/api/entity/LinenLivingEntity"
+      ]
+    }
+  }
+}

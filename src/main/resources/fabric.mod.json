@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "linen",
+  "name": "Linen",
+  "version": "${version}",
+  "description": "Just another library for Fabric",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*"
+  }
+}

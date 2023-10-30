@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-scheduler-api",
+  "name": "Linen Scheduler API",
+  "version": "${version}",
+  "description": "A simple API for scheduling tasks on the main thread.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "accessWidener": "linen-scheduler-api.accesswidener",
+  "mixins": [
+    "linen-scheduler-api.mixins.json",
+    {
+      "environment": "client",
+      "config": "linen-scheduler-api.client.mixins.json"
+    }
+  ]
+}

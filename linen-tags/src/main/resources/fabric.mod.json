@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-tags",
+  "name": "Linen Tags",
+  "version": "${version}",
+  "description": "Contains common tags used by multiple mods.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  }
+}

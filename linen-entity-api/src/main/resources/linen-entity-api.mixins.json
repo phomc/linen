@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.phomc.linen.mixin.entity",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "EntityMixin",
+    "LivingEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

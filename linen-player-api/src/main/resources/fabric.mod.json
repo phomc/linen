@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-player-api",
+  "name": "Linen Player API",
+  "version": "${version}",
+  "description": "A mod that provides extra API for player-related features.",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "contact": {
+    "issues": "https://github.com/PhoMC/linen/issues",
+    "sources": "https://github.com/PhoMC/linen"
+  },
+  "authors": [
+    "PhoMC"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api-base": "*"
+  },
+  "accessWidener": "linen-player-api.accesswidener",
+  "mixins": [
+    "linen-player-api.mixins.json"
+  ]
+}

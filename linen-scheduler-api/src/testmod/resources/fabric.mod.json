@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "linen-scheduler-api-test",
+  "name": "Linen Scheduler API Test Mod",
+  "version": "1.0.0",
+  "environment": "*",
+  "license": "Apache-2.0",
+  "depends": {
+    "linen-scheduler-api": "*"
+  },
+  "entrypoints": {
+    "main": [
+      "dev.phomc.linen.test.scheduler.SchedulerTest"
+    ]
+  }
+}

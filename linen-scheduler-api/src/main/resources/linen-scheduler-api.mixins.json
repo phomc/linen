@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "dev.phomc.linen.mixin.scheduler",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "MinecraftServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

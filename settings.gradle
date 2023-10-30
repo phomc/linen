@@ -1,0 +1,23 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = "Fabric"
+			url = "https://maven.fabricmc.net/"
+		}
+		gradlePluginPortal()
+	}
+}
+
+rootProject.name = 'linen'
+
+include("linen-common")
+project(":linen-common").projectDir = file("common")
+
+include("linen-api")
+
+include("linen-block-api")
+include("linen-entity-api")
+include("linen-player-api")
+include("linen-scheduler-api")
+include("linen-tags")
+include("linen-world-api")
